@@ -6,12 +6,12 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/aidant/oauth2-authorization-code-pkce-client.git"
+    "url": "https://github.com/aidant/lazy-oauth2-authorization-code-pkce-client.git"
   },
   "bugs": {
-    "url": "https://github.com/aidant/oauth2-authorization-code-pkce-client/issues"
+    "url": "https://github.com/aidant/lazy-oauth2-authorization-code-pkce-client/issues"
   },
-  "homepage": "https://github.com/aidant/oauth2-authorization-code-pkce-client#readme",
+  "homepage": "https://github.com/aidant/lazy-oauth2-authorization-code-pkce-client#readme",
   "keywords": [
     "oauth2",
     "authorization",

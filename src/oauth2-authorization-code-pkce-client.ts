@@ -10,7 +10,7 @@ interface AuthorizationRequest {
   state?: string
 }
 
-interface AuthorizationResponse {
+interface AuthorizationSuccessResponse {
   code: string
   state?: string
 }
@@ -30,6 +30,8 @@ interface AuthorizationRequestErrorResponse {
   state?: string
 }
 
+type AuthorizationResponse = AuthorizationSuccessResponse | AuthorizationRequestErrorResponse | null
+
 interface AccessTokenRequest {
   grant_type: 'authorization_code'
   code: string
@@ -38,7 +40,7 @@ interface AccessTokenRequest {
   client_id?: string
 }
 
-interface AccessTokenResponse {
+interface AccessTokenSuccessResponse {
   access_token: string
   token_type: string
   expires_in?: number
@@ -59,7 +61,9 @@ interface AccessTokenErrorResponse {
   error_uri?: string
 }
 
-export interface Parameters {
+type AccessTokenResponse = AccessTokenSuccessResponse | AccessTokenErrorResponse | null
+
+export interface Parameters extends Partial<AuthorizationRequest> {
   [parameter: string]: string | undefined
 }
 
@@ -83,12 +87,9 @@ export type ErrorCodes =
 
 export class AuthorizationCodeError extends Error {
   declare code: ErrorCodes
-  declare response: AuthorizationResponse | AuthorizationRequestErrorResponse | null
+  declare response: AuthorizationResponse
 
-  constructor(
-    code: ErrorCodes,
-    response: AuthorizationResponse | AuthorizationRequestErrorResponse | null = null
-  ) {
+  constructor(code: ErrorCodes, response: AuthorizationResponse = null) {
     super(code)
     this.code = code
     this.response = response
@@ -102,9 +103,20 @@ export interface GetAccessTokenOptions {
 }
 
 export const getAccessToken = async (
-  { authorizeURL, tokenURL, codeVerifier }: GetAccessTokenOptions,
+  options: string | GetAccessTokenOptions,
   { ...parameters }: Parameters = {}
-): Promise<AccessTokenResponse> => {
+): Promise<AccessTokenSuccessResponse> => {
+  let authorizeURL: string, tokenURL: string, codeVerifier: string | undefined
+
+  if (typeof options === 'string') {
+    authorizeURL = new URL('./authorize', options).href
+    tokenURL = new URL('./token', options).href
+  } else {
+    authorizeURL = options.authorizeURL
+    tokenURL = options.tokenURL
+    codeVerifier = options.codeVerifier
+  }
+
   const url = new URL(authorizeURL)
 
   if (!codeVerifier) codeVerifier = createCodeVerifier()
@@ -129,9 +141,7 @@ export const getAccessToken = async (
   const child = open(url, '_blank')
   if (!child) throw new AuthorizationCodeError('window-create-failed')
 
-  const response = await new Promise<
-    AuthorizationResponse | AuthorizationRequestErrorResponse | null
-  >((resolve) => {
+  const response = await new Promise<AuthorizationResponse>((resolve) => {
     const handleMessage = (event: MessageEvent) => {
       channel.removeEventListener('message', handleMessage)
       child.close()
@@ -154,9 +164,9 @@ export const getAccessToken = async (
   }
 
   if (url.searchParams.has('redirect_uri'))
-    accessTokenRequest.redirect_uri = url.searchParams.get('redirect_uri')
+    accessTokenRequest.redirect_uri = url.searchParams.get('redirect_uri')!
   if (url.searchParams.has('client_id'))
-    accessTokenRequest.client_id = url.searchParams.get('client_id')
+    accessTokenRequest.client_id = url.searchParams.get('client_id')!
 
   const accessTokenResponse = await fetch(tokenURL, {
     method: 'POST',
@@ -178,7 +188,7 @@ export const handleAuthorizationCodeCallback = () => {
 
   let response = null
 
-  if (query.has('error') || query.has('access_token')) {
+  if (query.has('error') || query.has('code')) {
     response = Object.fromEntries(query.entries())
   }
 
