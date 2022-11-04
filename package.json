@@ -1,6 +1,6 @@
 {
   "name": "@lazy/oauth2-authorization-code-pkce-client",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0-rc.4",
   "description": "A simple OAuth 2.0 Authorization Code PKCE client for the lazy developer.",
   "license": "MIT",
   "private": false,
@@ -30,10 +30,10 @@
   "exports": {
     ".": "./lib/oauth2-authorization-code-pkce-client.js",
     "./authorization-code-error.js": "./lib/authorization-code-error.js",
-    "./create-authorization-url.js": "./lib/create-authorization-url.js",
     "./create-context.js": "./lib/create-context.js",
     "./get-access-token.js": "./lib/get-access-token.js",
     "./get-authorization-code.js": "./lib/get-authorization-code.js",
+    "./get-authorization-url.js": "./lib/get-authorization-url.js",
     "./handle-authorization-code-callback.js": "./lib/handle-authorization-code-callback.js",
     "./handle-authorization-code-flow.js": "./lib/handle-authorization-code-flow.js",
     "./register-callback.js": "./lib/register-callback.js",

@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 1.0.0-rc.4 - 2022-11-05
+
+### Fixed
+
+  - The `get-authorization-url.js` submodule was incorrectly called `create-authorization-url.js`
+
 ## 1.0.0-rc.3 - 2022-11-04
 
 ### Added

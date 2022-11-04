@@ -29,15 +29,26 @@
   - [`getAuthorizationURL`]
   - [`getAuthorizationCode`]
   - [`getAccessToken`]
+- [Submodules](#submodules)
 
 ## Example
 
 ### HTML
 
+All functionality of this package is exposed through a web component that is
+accessible by default, the web component is the recommended way to use this package.
+
+````html
 ```html
 <head>
-  <script type="module" src="https://esm.sh/@lazy/oauth2-authorization-code-pkce-client/register-callback.js"></script>
-  <script type="module" src="https://esm.sh/@lazy/oauth2-authorization-code-pkce-client/register-web-component.js"></script>
+  <script
+    type="module"
+    src="https://cdn.skypack.dev/@lazy/oauth2-authorization-code-pkce-client/register-callback.js"
+  ></script>
+  <script
+    type="module"
+    src="https://cdn.skypack.dev/@lazy/oauth2-authorization-code-pkce-client/register-web-component.js"
+  ></script>
   <script type="module">
     addEventListener('oauth2:credentials', (event) => {
       console.log(event.detail)
@@ -56,12 +67,18 @@
     Connect with Example
   </a>
 </body>
-```
+````
 
 ### JavaScript
 
+If you need a lower-level JavaScript API you can use [`handleAuthorizationCodeFlow`] or
+[`createContext`], [`getAuthorizationURL`], [`getAuthorizationCode`], and [`getAccessToken`].
+
 ```ts
-import { handleAuthorizationCodeFlow, handleAuthorizationCodeCallback } from '@lazy/oauth2-authorization-code-pkce-client'
+import {
+  handleAuthorizationCodeFlow,
+  handleAuthorizationCodeCallback,
+} from '@lazy/oauth2-authorization-code-pkce-client'
 
 handleAuthorizationCodeCallback()
 
@@ -76,7 +93,6 @@ button.addEventListener('click', () => {
   const token = `${response.token_type} ${response.access_token}`
   console.log(token)
 })
-
 ```
 
 ## API
@@ -97,7 +113,10 @@ should be loaded on the callback page.
 
 ```html
 <head>
-  <script type="module" src="https://esm.sh/@lazy/oauth2-authorization-code-pkce-client/register-web-component.js"></script>
+  <script
+    type="module"
+    src="https://cdn.skypack.dev/@lazy/oauth2-authorization-code-pkce-client/register-web-component.js"
+  ></script>
 </head>
 
 <body>
@@ -245,10 +264,24 @@ const credentials = await getAccessToken(context, response)
 
 Returns `Promise<AccessTokenSuccessResponse>`
 
+## Submodules
+
+There are two main submodules for this package; `@lazy/oauth2-authorization-code-pkce-client/register-web-component.js` and `@lazy/oauth2-authorization-code-pkce-client/register-callback.js` these can be used to setup the OAuth 2.0 flow without writing any JavaScript. Each function also has a submodule associated with it to optimize bundle size, a list of all the submodules can be found below:
+
+- `@lazy/oauth2-authorization-code-pkce-client/authorization-code-error.js`
+- `@lazy/oauth2-authorization-code-pkce-client/create-context.js`
+- `@lazy/oauth2-authorization-code-pkce-client/get-access-token.js`
+- `@lazy/oauth2-authorization-code-pkce-client/get-authorization-code.js`
+- `@lazy/oauth2-authorization-code-pkce-client/get-authorization-url.js`
+- `@lazy/oauth2-authorization-code-pkce-client/handle-authorization-code-callback.js`
+- `@lazy/oauth2-authorization-code-pkce-client/handle-authorization-code-flow.js`
+- `@lazy/oauth2-authorization-code-pkce-client/register-callback.js`
+- `@lazy/oauth2-authorization-code-pkce-client/register-web-component.js`
+
 [`lazy-oauth2-authorization-code-pkce-client`]: #lazy-oauth2-authorization-code-pkce-client
-[`handleAuthorizationCodeFlow`]: #handleauthorizationcodeflow
-[`handleAuthorizationCodeCallback`]: #handleauthorizationcodecallback
-[`createContext`]: #createcontext
-[`getAuthorizationURL`]: #getauthorizationurl
-[`getAuthorizationCode`]: #getauthorizationcode
-[`getAccessToken`]: #getaccesstoken
+[`handleauthorizationcodeflow`]: #handleauthorizationcodeflow
+[`handleauthorizationcodecallback`]: #handleauthorizationcodecallback
+[`createcontext`]: #createcontext
+[`getauthorizationurl`]: #getauthorizationurl
+[`getauthorizationcode`]: #getauthorizationcode
+[`getaccesstoken`]: #getaccesstoken
