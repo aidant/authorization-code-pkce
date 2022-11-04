@@ -13,15 +13,34 @@
   },
   "homepage": "https://github.com/aidant/lazy-oauth2-authorization-code-pkce-client#readme",
   "keywords": [
-    "oauth2",
+    "access",
+    "auth",
     "authorization",
+    "client",
     "code",
+    "component",
+    "credentials",
+    "oauth2",
     "pkce",
-    "client"
+    "refresh",
+    "token",
+    "web"
   ],
   "main": "./lib/oauth2-authorization-code-pkce-client.js",
-  "exports": "./lib/oauth2-authorization-code-pkce-client.js",
+  "exports": {
+    ".": "./lib/oauth2-authorization-code-pkce-client.js",
+    "./authorization-code-error.js": "./lib/authorization-code-error.js",
+    "./create-authorization-url.js": "./lib/create-authorization-url.js",
+    "./create-context.js": "./lib/create-context.js",
+    "./get-access-token.js": "./lib/get-access-token.js",
+    "./get-authorization-code.js": "./lib/get-authorization-code.js",
+    "./handle-authorization-code-callback.js": "./lib/handle-authorization-code-callback.js",
+    "./handle-authorization-code-flow.js": "./lib/handle-authorization-code-flow.js",
+    "./register-callback.js": "./lib/register-callback.js",
+    "./register-web-component.js": "./lib/register-web-component.js"
+  },
   "sideEffects": false,
   "type": "module",
-  "types": "./lib/oauth2-authorization-code-pkce-client.d.ts"
+  "types": "./lib/oauth2-authorization-code-pkce-client.d.ts",
+  "dependencies": {}
 }

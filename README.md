@@ -19,17 +19,49 @@
 ## Table of Contents
 
 - [Example](#example)
+  - [HTML](#html)
+  - [JavaScript](#javascript)
 - [API](#api)
+  - [`lazy-oauth2-authorization-code-pkce-client`]
   - [`handleAuthorizationCodeFlow`]
   - [`handleAuthorizationCodeCallback`]
-  - [`getAuthorizationCodeContext`]
-  - [`getAuthorizationCodeResponse`]
+  - [`createContext`]
+  - [`getAuthorizationURL`]
+  - [`getAuthorizationCode`]
   - [`getAccessToken`]
 
 ## Example
 
+### HTML
+
+```html
+<head>
+  <script type="module" src="https://esm.sh/@lazy/oauth2-authorization-code-pkce-client/register-callback.js"></script>
+  <script type="module" src="https://esm.sh/@lazy/oauth2-authorization-code-pkce-client/register-web-component.js"></script>
+  <script type="module">
+    addEventListener('oauth2:credentials', (event) => {
+      console.log(event.detail)
+    })
+  </script>
+</head>
+
+<body>
+  <a
+    is="lazy-oauth2-authorization-code-pkce-client"
+    server:authorization_endpoint="https://auth.example.com/oauth2/authorize"
+    server:token_endpoint="https://auth.example.com/oauth2/token"
+    oauth2:client_id="d66de78a-50e2-4007-ba6b-55f86ee40b61"
+    oauth2:scope="email"
+  >
+    Connect with Example
+  </a>
+</body>
+```
+
+### JavaScript
+
 ```ts
-import { handleAuthorizationCodeCallback } from '@lazy/oauth2-authorization-code-pkce-client'
+import { handleAuthorizationCodeFlow, handleAuthorizationCodeCallback } from '@lazy/oauth2-authorization-code-pkce-client'
 
 handleAuthorizationCodeCallback()
 
@@ -37,15 +69,51 @@ const button = document.createElement('button')
 button.textContent = 'Login'
 
 button.addEventListener('click', () => {
-  const response = await handleAuthorizationCodeFlow('https://api.example.com', {
-    client_id: 'example-client-id',
+  const response = await handleAuthorizationCodeFlow('https://auth.example.com/oauth2', {
+    client_id: 'd66de78a-50e2-4007-ba6b-55f86ee40b61',
+    scope: 'email',
   })
   const token = `${response.token_type} ${response.access_token}`
   console.log(token)
 })
+
 ```
 
 ## API
+
+### [`lazy-oauth2-authorization-code-pkce-client`]
+
+The custom web component `<a is="lazy-oauth2-authorization-code-pkce-client">`
+is the simplest solution to adding the OAuth 2.0 Authorization Code PKCE flow.
+The `@lazy/oauth2-authorization-code-pkce-client/register-callback.js` script
+should be loaded on the callback page.
+
+#### Parameters
+
+- `server:endpoint` - _string_ - The base URL or metadata URL of the OAuth 2.0 provider.
+- `server:authorization_endpoint` - _string_ - The URL of the OAuth 2.0 provider's authorization endpoint.
+- `server:token_endpoint` - _string_ - The URL of the OAuth 2.0 provider's token endpoint.
+- `oauth2:*` - _string_ - The OAuth 2.0 parameters such as; `client_id`, `scope`, and/or `redirect_uri`.
+
+```html
+<head>
+  <script type="module" src="https://esm.sh/@lazy/oauth2-authorization-code-pkce-client/register-web-component.js"></script>
+</head>
+
+<body>
+  <a
+    is="lazy-oauth2-authorization-code-pkce-client"
+    server:authorization_endpoint="https://auth.example.com/oauth2/authorize"
+    server:token_endpoint="https://auth.example.com/oauth2/token"
+    oauth2:client_id="d66de78a-50e2-4007-ba6b-55f86ee40b61"
+    oauth2:scope="email"
+  >
+    Connect with Example
+  </a>
+</body>
+```
+
+Emits the `oauth2:credentials` CustomEvent with the OAuth 2.0 credentials.
 
 ### `handleAuthorizationCodeFlow`
 
@@ -58,19 +126,19 @@ magic.
 
 #### Parameters
 
-- `oauth2server` - **string** - The URL of the OAuth 2.0 provider.
+- `oauth2server` - **string** or **object** - The base URL, metadata URL, or metadata of the OAuth 2.0 provider.
 - `parameters` - _object_ - The OAuth 2.0 parameters such as; `client_id`, `scope`, and/or `redirect_uri`.
 
 #### Example
 
 ```ts
-import { handleAuthorizationCodeFlow } from '@lazy/oauth2-authorization-code-pkce-client'
+import { handleAuthorizationCodeFlow } from '@lazy/oauth2-authorization-code-pkce-client/handle-authorization-code-flow.js'
 
 const button = document.createElement('button')
 button.textContent = 'Login'
 
 button.addEventListener('click', () => {
-  const response = await handleAuthorizationCodeFlow('https://api.example.com', {
+  const response = await handleAuthorizationCodeFlow('https://auth.example.com/oauth2', {
     client_id: 'example-client-id',
   })
   const token = `${response.token_type} ${response.access_token}`
@@ -93,112 +161,94 @@ functions in the same page make sure you call the
 #### Example
 
 ```ts
-import { handleAuthorizationCodeCallback } from '@lazy/oauth2-authorization-code-pkce-client'
+import { handleAuthorizationCodeCallback } from '@lazy/oauth2-authorization-code-pkce-client/handle-authorization-code-callback.js'
 
 handleAuthorizationCodeCallback()
 ```
 
 Returns `void`
 
-### `getAuthorizationCodeContext`
+### `createContext`
 
-The [`getAuthorizationCodeContext`] function allows you to create a context
-object that can be used in the dom on anchor tags or the like to improve
-accessability over buttons with click handlers.
-
-This context should only be used once, if you need you can call
-[`getAuthorizationCodeContext`] multiple times to get several context objects.
+The [`createContext`] function allows you to create a context object that is
+used by the lower level functions. Each context should only be used once, if you
+need you can call [`createContext`] multiple times to get several context objects.
 
 #### Parameters
 
-- `authorizeEndpoint` - **string** - The Authorize endpoint of the OAuth 2.0 provider.
+- `oauth2server` - **string** or **object** - The base URL, metadata URL, or metadata of the OAuth 2.0 provider.
 - `parameters` - _object_ - The OAuth 2.0 parameters such as; `client_id`, `scope`, and/or `redirect_uri`.
 
 #### Example
 
 ```ts
-import { getAuthorizationCodeContext } from '@lazy/oauth2-authorization-code-pkce-client'
+import { createContext } from '@lazy/oauth2-authorization-code-pkce-client/create-context.js'
 
-const context = await getAuthorizationCodeContext('https://api.example.com/authorize', {
+const context = await createContext('https://auth.example.com/oauth2', {
   client_id: 'example-client-id',
 })
-
-const a = document.createElement('a')
-a.href = context.url.href
-a.target = '_blank'
-a.rel = 'noopener'
-a.textContent = 'Login'
-
-a.addEventListener(
-  'click',
-  () => {
-    a.remove()
-  },
-  { once: true }
-)
-
-document.append(a)
 ```
 
-Returns `Promise<AuthorizationCodeContext>`
+Returns `Promise<Context>`
 
-### `getAuthorizationCodeResponse`
+### `getAuthorizationURL`
+
+Create the URL to the OAuth 2.0 provider's authorization endpoint.
 
 #### Parameters
 
-- `context` - **AuthorizationCodeContext** - The context object for the OAuth 2.0 Flow.
+- `context` - **Context** - The context object returned from [`createContext`].
 
 #### Example
 
 ```ts
-import { getAuthorizationCodeResponse } from '@lazy/oauth2-authorization-code-pkce-client'
+import { getAuthorizationURL } from '@lazy/oauth2-authorization-code-pkce-client/get-authorization-url.js'
 
-const response = await getAuthorizationCodeResponse(context)
+const url = getAuthorizationURL(context)
+open(url, '_blank', 'noopener')
+```
+
+### `getAuthorizationCode`
+
+#### Parameters
+
+Get the authorization code from the callback endpoint.
+
+- `context` - **Context** - The context object returned from [`createContext`].
+
+#### Example
+
+```ts
+import { getAuthorizationCode } from '@lazy/oauth2-authorization-code-pkce-client/get-authorization-code.js'
+
+const response = await getAuthorizationCode(context)
 ```
 
 Returns `Promise<AuthorizationSuccessResponse>`
 
 ### `getAccessToken`
 
+Exchange an authorization code for an access token.
+
 #### Parameters
 
-- `tokenEndpoint` - **string** - The Token endpoint of the OAuth 2.0 provider.
-- `context` - **AuthorizationCodeContext** - The context object for the OAuth 2.0 Flow.
-- `response` - _AuthorizationSuccessResponse_ - The Authorization Code response.
+- `context` - **Context** - The context object returned from [`createContext`].
+- `response` - **AuthorizationSuccessResponse** - The Authorization Code response.
 
 #### Example
 
 ```ts
-import { getAccessToken } from '@lazy/oauth2-authorization-code-pkce-client'
+import { getAccessToken } from '@lazy/oauth2-authorization-code-pkce-client/get-access-token.js'
 
-const context = await getAuthorizationCodeContext('https://api.example.com/authorize', {
-  client_id: 'example-client-id',
-})
-
-const a = document.createElement('a')
-a.href = context.url.href
-a.target = '_blank'
-a.rel = 'noopener'
-a.textContent = 'Login'
-
-a.addEventListener(
-  'click',
-  async () => {
-    a.remove()
-    const response = await getAccessToken('https://api.example.com/token', context)
-    const token = `${response.token_type} ${response.access_token}`
-    console.log(token)
-  },
-  { once: true }
-)
-
-document.append(a)
+const credentials = await getAccessToken(context, response)
 ```
 
-Returns `Promise<ImplicitGrantSuccessResponse>`
+Returns `Promise<AccessTokenSuccessResponse>`
 
-[`handleauthorizationcodeflow`]: #handleauthorizationcodeflow
-[`handleauthorizationcodecallback`]: #handleauthorizationcodecallback
-[`getauthorizationcodecontext`]: #getauthorizationcodecontext
-[`getauthorizationcoderesponse`]: #getauthorizationcoderesponse
-[`getaccesstoken`]: #getaccesstoken
+[`lazy-oauth2-authorization-code-pkce-client`]: #lazy-oauth2-authorization-code-pkce-client
+[`handleAuthorizationCodeFlow`]: #handleauthorizationcodeflow
+[`handleAuthorizationCodeCallback`]: #handleauthorizationcodecallback
+[`createContext`]: #createcontext
+[`getAuthorizationURL`]: #getauthorizationurl
+[`getAuthorizationCode`]: #getauthorizationcode
+[`getAccessToken`]: #getaccesstoken
